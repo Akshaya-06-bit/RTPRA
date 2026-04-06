@@ -1,0 +1,63 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 56px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  gap: 16px;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.navbar-icon  { font-size: 20px; }
+.navbar-title { font-weight: 700; font-size: 16px; color: var(--text-primary); }
+.navbar-sub   { font-size: 11px; color: var(--text-muted); display: none; }
+@media (min-width: 900px) { .navbar-sub { display: block; } }
+
+.navbar-center {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.status-dot.running { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 1.5s infinite; }
+.status-dot.paused  { background: var(--yellow); }
+.status-dot.idle    { background: var(--text-muted); }
+
+.status-label { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.conn-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+.conn-badge.connected    { color: var(--green); background: var(--green-bg); }
+.conn-badge.disconnected { color: var(--red);   background: var(--red-bg); }
+
+.navbar-user {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}

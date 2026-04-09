@@ -1,36 +1,49 @@
-const jwt    = require('jsonwebtoken');
-const engine = require('../services/engineInstance');
+const jwt = require('jsonwebtoken');
+const engineManager = require('../services/engineManager');
 
-/**
- * Attach Socket.IO to the HTTP server.
- * Clients authenticate via handshake token, then receive live tick snapshots.
- */
 function initSockets(io) {
-  // Auth middleware for socket connections
+  // Authenticate socket with JWT
   io.use((socket, next) => {
     const token = socket.handshake.auth?.token;
-    if (!token) return next(new Error('Authentication required'));
+
+    if (!token) {
+      return next(new Error('Authentication required'));
+    }
+
     try {
       socket.user = jwt.verify(token, process.env.JWT_SECRET);
       next();
-    } catch {
+    } catch (err) {
       next(new Error('Invalid token'));
     }
   });
 
   io.on('connection', (socket) => {
-    console.log(`Socket connected: ${socket.id}`);
+    const userId = (socket.user._id || socket.user.id)?.toString();
 
-    // Send current state immediately on connect
+    if (!userId) {
+      console.log(`Socket rejected: invalid token payload for socket ${socket.id}`);
+      socket.disconnect();
+      return;
+    }
+
+    const room = `user:${userId}`;
+    socket.join(room);
+
+    const engine = engineManager.getEngine(userId);
+
+    console.log(`Socket connected: ${socket.id}, user: ${userId}`);
+
+    // Send this user's current state immediately
     socket.emit('simulation:state', engine.getSnapshot());
 
-    // Wire engine tick callback to broadcast to all clients
+    // Broadcast only to this user's room
     engine.onTick = (snapshot) => {
-      io.emit('simulation:tick', snapshot);
+      io.to(room).emit('simulation:tick', snapshot);
     };
 
     socket.on('disconnect', () => {
-      console.log(`Socket disconnected: ${socket.id}`);
+      console.log(`Socket disconnected: ${socket.id}, user: ${userId}`);
     });
   });
 }

@@ -1,12 +1,13 @@
 const Task   = require('../models/Task');
-const engine = require('../services/engineInstance');
+const engineManager = require('../services/engineManager');
 
 exports.createTask = async (req, res, next) => {
   try {
     const data = { ...req.body, createdBy: req.user._id };
     const task = await Task.create(data);
     // Inject into live scheduler
-    engine.addTask(task.toObject());
+   const engine = engineManager.getEngine(req.user._id.toString());
+engine.addTask(task.toObject());
     res.status(201).json({ success: true, task });
   } catch (err) { next(err); }
 };

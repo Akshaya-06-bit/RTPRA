@@ -1,8 +1,9 @@
-const engine    = require('../services/engineInstance');
+const engineManager = require('../services/engineManager');
 const scenarios = require('../services/scheduler/scenarios');
 const { computeEffectivePriority } = require('../services/scheduler/policies');
 
 exports.startSimulation = (req, res) => {
+   const engine = engineManager.getEngine(req.user._id.toString());
   const { config } = req.body;
   if (config) engine.configure(config);
   engine.start();
@@ -10,25 +11,30 @@ exports.startSimulation = (req, res) => {
 };
 
 exports.pauseSimulation = (req, res) => {
+   const engine = engineManager.getEngine(req.user._id.toString());
   engine.pause();
   res.json({ success: true, message: 'Simulation paused' });
 };
 
 exports.resumeSimulation = (req, res) => {
+   const engine = engineManager.getEngine(req.user._id.toString());
   engine.resume();
   res.json({ success: true, message: 'Simulation resumed' });
 };
 
 exports.resetSimulation = (req, res) => {
+   const engine = engineManager.getEngine(req.user._id.toString());
   engine.reset();
   res.json({ success: true, message: 'Simulation reset' });
 };
 
 exports.getState = (req, res) => {
+   const engine = engineManager.getEngine(req.user._id.toString());
   res.json({ success: true, state: engine.getSnapshot() });
 };
 
 exports.setSpeed = (req, res) => {
+   const engine = engineManager.getEngine(req.user._id.toString());
   const { multiplier } = req.body;
   if (![1, 2, 5].includes(Number(multiplier))) {
     return res.status(400).json({ success: false, message: 'Speed must be 1, 2, or 5' });
@@ -38,6 +44,7 @@ exports.setSpeed = (req, res) => {
 };
 
 exports.loadScenario = (req, res) => {
+   const engine = engineManager.getEngine(req.user._id.toString());
   const { scenarioId } = req.body;
   const scenario = scenarios[scenarioId];
   if (!scenario) {
@@ -81,6 +88,7 @@ exports.listScenarios = (req, res) => {
 };
 
 exports.updateConfig = (req, res) => {
+   const engine = engineManager.getEngine(req.user._id.toString());
   const { config } = req.body;
   engine.configure(config);
   res.json({ success: true, message: 'Config updated', config: engine.config });

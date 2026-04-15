@@ -88,8 +88,33 @@ exports.listScenarios = (req, res) => {
 };
 
 exports.updateConfig = (req, res) => {
-   const engine = engineManager.getEngine(req.user._id.toString());
+  const engine = engineManager.getEngine(req.user._id.toString());
   const { config } = req.body;
+
+  if (!config || typeof config !== 'object') {
+    return res.status(400).json({ success: false, message: 'Config object is required' });
+  }
+
+  // Block resource pool changes while simulation is actively running
+  if (engine.state === 'running') {
+    return res.status(409).json({
+      success: false,
+      message: 'Cannot update resources while simulation is running. Pause first.',
+    });
+  }
+
+  // Validate totalResources if provided
+  if (config.totalResources !== undefined) {
+    const val = Number(config.totalResources);
+    if (!Number.isInteger(val) || val < 1) {
+      return res.status(400).json({
+        success: false,
+        message: 'totalResources must be a positive integer (minimum 1)',
+      });
+    }
+    config.totalResources = val;
+  }
+
   engine.configure(config);
   res.json({ success: true, message: 'Config updated', config: engine.config });
 };

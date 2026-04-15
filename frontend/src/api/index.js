@@ -23,7 +23,7 @@ export const simulationAPI = {
   setSpeed:     (m)      => api.post('/simulation/speed', { multiplier: m }),
   loadScenario: (id)     => api.post('/simulation/load-scenario', { scenarioId: id }),
   listScenarios:()       => api.get('/simulation/scenarios'),
-  updateConfig: (config) => api.patch('/simulation/config', { config }),
+  updateConfig: (config) => api.post('/simulation/config', { config }),
 };
 
 export const metricsAPI = {

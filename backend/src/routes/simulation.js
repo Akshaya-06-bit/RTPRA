@@ -12,6 +12,6 @@ router.get('/state',          ctrl.getState);
 router.post('/speed',         ctrl.setSpeed);
 router.post('/load-scenario', ctrl.loadScenario);
 router.get('/scenarios',      ctrl.listScenarios);
-router.patch('/config',       ctrl.updateConfig);
+router.post('/config',        ctrl.updateConfig);
 
 module.exports = router;

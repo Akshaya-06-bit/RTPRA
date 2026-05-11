@@ -8,10 +8,14 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://rtpra.vercel.app"
+    "https://rtpra.vercel.app",
+    "https://rtpra-1wivvo5mp-akshaya-06-bits-projects.vercel.app"
   ],
-  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
 }));
+
 app.use(express.json());
 
 // Routes

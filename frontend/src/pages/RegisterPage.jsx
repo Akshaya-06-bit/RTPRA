@@ -10,19 +10,54 @@ export default function RegisterPage() {
   const [error, setError]   = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-    try {
-      await register(form.username, form.email, form.password);
-      navigate('/');
-    } catch (err) {
-      setError(err.response?.data?.message || err.response?.data?.errors?.[0]?.msg || 'Registration failed');
-    } finally {
-      setLoading(false);
+const handleSubmit = async (e) => {
+
+  e.preventDefault();
+
+  setError('');
+
+  setLoading(true);
+
+  try {
+
+    console.log("FORM DATA:", form);
+
+    const response = await register(
+      form.username,
+      form.email,
+      form.password
+    );
+
+    console.log("SUCCESS:", response);
+
+    navigate('/');
+
+  } catch (err) {
+
+    console.log("FULL ERROR:", err);
+
+    console.log("ERROR RESPONSE:", err.response);
+
+    console.log("ERROR DATA:", err.response?.data);
+
+    if (err.response?.data?.message) {
+
+      setError(err.response.data.message);
+
+    } else if (err.response?.data?.errors?.length > 0) {
+
+      setError(err.response.data.errors[0].msg);
+
+    } else {
+
+      setError('Registration failed');
     }
-  };
+
+  } finally {
+
+    setLoading(false);
+  }
+};
 
   return (
     <div className="auth-page">

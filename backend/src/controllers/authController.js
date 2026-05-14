@@ -9,8 +9,19 @@ const signToken = (id) =>
   );
 
 exports.register = async (req, res, next) => {
+
   try {
+
+    console.log("REGISTER BODY:", req.body);
+
     const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields are required'
+      });
+    }
 
     const existing = await User.findOne({
       $or: [{ email }, { username }]
@@ -23,7 +34,12 @@ exports.register = async (req, res, next) => {
       });
     }
 
-    const user = await User.create({ username, email, password });
+    const user = await User.create({
+      username,
+      email,
+      password
+    });
+
     const token = signToken(user._id);
 
     res.status(201).json({
@@ -31,21 +47,36 @@ exports.register = async (req, res, next) => {
       token,
       user: user.toJSON()
     });
+
   } catch (err) {
+
+    console.log("REGISTER ERROR:", err);
+
     next(err);
   }
 };
 
 exports.login = async (req, res, next) => {
+
   try {
+
     const { email, password } = req.body;
 
     const user = await User.findOne({ email }).select('+password');
 
-    if (!user || !(await user.comparePassword(password))) {
+    if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Invalid email'
+      });
+    }
+
+    const isMatch = await user.comparePassword(password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid password'
       });
     }
 
@@ -56,12 +87,17 @@ exports.login = async (req, res, next) => {
       token,
       user: user.toJSON()
     });
+
   } catch (err) {
+
+    console.log("LOGIN ERROR:", err);
+
     next(err);
   }
 };
 
 exports.getMe = (req, res) => {
+
   res.json({
     success: true,
     user: req.user
